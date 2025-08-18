@@ -20,7 +20,7 @@ jobs:
                 node_version: [18, 19, 20]
                 os: [ubuntu-latest, macos-latest]
                 exclude:
-                    - nodejs_version: 18
+                    - node_version: 18
                       os: macos-latest
 
         runs-on: ${{ matrix.os }}
@@ -46,4 +46,4 @@ jobs:
                 path: test-results.xml
 
     
-                
+
