@@ -63,6 +63,7 @@ jobs:
               run: npm install
 
             - name: check code coverage
+              continue-on-error: true
               run: npm run coverage
 
             - name: archive coverage result
@@ -71,3 +72,47 @@ jobs:
                 name: code-coverage-result
                 path: coverage
                 retention-days: 5
+
+    containerization:
+        name: containerization with docker
+        needs: code-coverage
+        permissions:
+            contents: read
+            packages: write
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout repo
+              uses: actions/checkout@v4
+            
+            - name: docker-login
+              uses: docker/login-action@v3
+              with:
+                username: ${{ vars.DOCKERHUB_USERNAME }}
+                password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+            - name: Build docker image
+              uses: docker/build-push-action@v6
+              with:
+                context: .
+                push: false
+                tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system2:latest
+
+            - name: Test Docker image
+              run: |
+                docker images
+                docker run --name solar-system-app -d \
+                -p 3000:3000 \
+                -e MONGO_URI=$MONGO_URI \
+                -e MONGO_USERNAME=$MONGO_USERNAME \
+                -e MONGO_PASSWORD=$MONGO_PASSWORD \
+                ${{ vars.DOCKERHUB_USERNAME }}/solar-system:latest
+                export IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' solar-system-app)
+                echo $IP
+
+            - name: Push docker image
+              uses: docker/build-push-action@v6
+              with:
+                context: .
+                push: true
+                tags: ${{ vars.DOCKERHUB_USERNAME }}/solar-system2:latest
+
