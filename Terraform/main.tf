@@ -98,10 +98,10 @@ resource "aws_security_group" "eks_sg" {
   }
 }
 
-resource "aws_key_pair" "ssh_key" {
-  key_name   = "eks_ssh_keynew"
-  public_key = file(var.public_key_path) 
-}
+# resource "aws_key_pair" "ssh_key" {
+#   key_name   = "eks_ssh_keynew"
+#   public_key = file(var.public_key_path) 
+# }
 
 resource "aws_iam_role" "eks_worker_node_role" {
   name = "stage-eks-worker-node-role"
