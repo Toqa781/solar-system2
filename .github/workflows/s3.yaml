@@ -1,0 +1,37 @@
+name: creating s3 for statefile
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - 'feature-*'
+            - main
+
+jobs:
+    s3:
+        name: create s3
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout config files
+              uses: actions/checkout@v5
+
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v4.3.1
+              with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: eu-central-1
+            
+            - name: create s3 (if not exists)
+              run: |
+                if ! aws dynamodb describe-table --table-name terraform-lock > /dev/null 2>&1; then
+                    aws dynamodb create-table \
+                      --table-name terraform-lock \
+                      --attribute-definitions AttributeName=LockID,AttributeType=S \
+                      --key-schema AttributeName=LockID,KeyType=HASH \
+                      --billig-mode PAY-PER-REQUEST
+                    echo "Dynamodb table terraform-lock created"
+                else
+                    echo "Dynamodb table terraform-lock already exists"
+                fi
+
+
