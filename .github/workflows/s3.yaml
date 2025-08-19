@@ -24,12 +24,12 @@ jobs:
 
             - name: create s3 bucket (if not exists)
               run: |
-                if ! aws s3api head-bucket --bucket stagebucket12 2>/dev/null; then
+                if ! aws s3api head-bucket --bucket stagebucket2210 2>/dev/null; then
                     aws s3api create-bucket \
-                      --bucket stagebucket12 \
+                      --bucket stagebucket2210 \
                       --region eu-central-1 \
                       --create-bucket-configuration LocationConstraint=eu-central-1 
-                    echo "S3 bucket stagebucket12 created"
+                    echo "S3 bucket stagebucket2210 created"
                 else
                     echo "S3 bucket already exists"
                 fi
